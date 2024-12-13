@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/flowpoints_ml_offline/static/css/main.3f241ef0.chunk.css",
-    "main.js": "/flowpoints_ml_offline/static/js/main.52635f6c.chunk.js",
-    "main.js.map": "/flowpoints_ml_offline/static/js/main.52635f6c.chunk.js.map",
+    "main.js": "/flowpoints_ml_offline/static/js/main.871ee51d.chunk.js",
+    "main.js.map": "/flowpoints_ml_offline/static/js/main.871ee51d.chunk.js.map",
     "runtime~main.js": "/flowpoints_ml_offline/static/js/runtime~main.f8d3fdb8.js",
     "runtime~main.js.map": "/flowpoints_ml_offline/static/js/runtime~main.f8d3fdb8.js.map",
     "static/js/2.480aab34.chunk.js": "/flowpoints_ml_offline/static/js/2.480aab34.chunk.js",
     "static/js/2.480aab34.chunk.js.map": "/flowpoints_ml_offline/static/js/2.480aab34.chunk.js.map",
     "index.html": "/flowpoints_ml_offline/index.html",
-    "precache-manifest.4dd5839282a6985aebdddf5f4d40a8c2.js": "/flowpoints_ml_offline/precache-manifest.4dd5839282a6985aebdddf5f4d40a8c2.js",
+    "precache-manifest.a9f89bd301a80b6126ca580ff7f34611.js": "/flowpoints_ml_offline/precache-manifest.a9f89bd301a80b6126ca580ff7f34611.js",
     "service-worker.js": "/flowpoints_ml_offline/service-worker.js",
     "static/css/main.3f241ef0.chunk.css.map": "/flowpoints_ml_offline/static/css/main.3f241ef0.chunk.css.map"
   }

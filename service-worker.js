@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/flowpoints_ml_offline/precache-manifest.4dd5839282a6985aebdddf5f4d40a8c2.js"
+  "/flowpoints_ml_offline/precache-manifest.a9f89bd301a80b6126ca580ff7f34611.js"
 );
 
 self.addEventListener('message', (event) => {
