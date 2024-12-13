@@ -36,7 +36,7 @@ export function MainLibrary() {
       variant: 'outlined',
       drawerOpen: false,
       drawerWidth: 360,
-      showShape: false,
+      showShape: true,
       showName: false,
       snap: true,
       show_load_dialog: false,
