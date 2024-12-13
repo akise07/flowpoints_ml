@@ -80,7 +80,7 @@ export class LoadDialog extends React.Component {
             <WhatIsThis onClick={() => {if (this.fieldRef) {this.fieldRef.focus()}}}/>
             <form 
               autoComplete='off'
-              style={{marginTop:0, paddingTop:0}}
+              style={{marginTop:0, paddingTop:0, display:'none'}}
               onSubmit={(e) => {
                 e.preventDefault();
                 if (this.props.onSubmit) {this.props.onSubmit(this.state.pswd)}
@@ -145,12 +145,12 @@ export class SaveDialog extends React.Component {
         <DialogTitle id="alert-dialog-title">Model encryption (optional)</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Type a password to encrypt your model, or leave the
-            password field empty in order to create a public link<br/>
+            {/* Type a password to encrypt your model, or leave the
+            password field empty in order to create a public link<br/> */}
             <WhatIsThis onClick={() => {if (this.fieldRef) {this.fieldRef.focus()}}}/>
-            <form 
+            <form
               autoComplete='off'
-              style={{marginTop:0, paddingTop:0}}
+              style={{marginTop:0, paddingTop:0, display:'none'}}
               onSubmit={(e) => {
                 e.preventDefault();
                 if (this.props.onSubmit) this.props.onSubmit(this.state.pswd)
@@ -180,7 +180,7 @@ export class SaveDialog extends React.Component {
             }}
             color="primary">
             {
-              (this.state.pswd === '') ? (this.props.continueMsg ? this.props.continueMsg : 'Continue without password') : 'Continue'
+              (this.state.pswd === '') ? (this.props.continueMsg ? this.props.continueMsg : 'Continue') : 'Continue'
             }
           </Button>
         </DialogActions>

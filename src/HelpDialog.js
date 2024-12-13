@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Dialog, DialogTitle, DialogContentText, DialogContent, ExpansionPanel, ExpansionPanelSummary, Stepper, StepContent, StepLabel, Step, Link } from "@material-ui/core";
-
+import FileUpload from './FileUpload';
 
 export class HelpDialog extends React.Component{
   constructor(props) {
@@ -15,13 +15,14 @@ export class HelpDialog extends React.Component{
 
   render() {
     return (
+      
       <Dialog
+      
         open={this.props.open}
         onClose={this.props.onClose}
         fullWidth
         maxWidth='sm'
         style={{maxHeight:'90vh', height:'auto'}}>
-
         <DialogTitle>Getting started</DialogTitle>
 
         <div style={{overflow:'scroll', width:'100%'}}>
@@ -177,6 +178,7 @@ export class HelpDialog extends React.Component{
           </Stepper>
         </div>
       </Dialog>
+      
     )
   }
 }

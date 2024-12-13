@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import FileUpload from './FileUpload';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+
 
 ReactDOM.render(<App />, document.getElementById('root'));
 

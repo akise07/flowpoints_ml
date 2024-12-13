@@ -49,6 +49,7 @@ export function Encrypt(data, key) {
 
 export function Decrypt(data, key) {
   var msg = data
+  // console.log(data)
   const specials = getSpecialsLib(true)
   Object.keys(specials).map(key => {
     msg = ReplaceAll(msg, key, specials[key])

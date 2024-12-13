@@ -17,7 +17,23 @@ import { Snackbar, SnackbarContent } from '@material-ui/core';
 import { LoadDialog, SaveDialog } from './PasswordDialog.js';
 import { MainLibrary } from './MainLibrary';
 import { HelpDialog } from './HelpDialog';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import FileUpload from './FileUpload';
 
+var keys = ''
+var model_id = ''
+
+function saveFile(content, fileName, contentType) {
+  const a = document.createElement('a');
+  const file = new Blob([content], { type: contentType });
+
+  a.href = URL.createObjectURL(file);
+  a.download = fileName;
+  a.click();
+
+  // 清理
+  URL.revokeObjectURL(a.href);
+}
 
 function shapeBox(shape) {
   var msg = '['
@@ -27,7 +43,7 @@ function shapeBox(shape) {
   if (shape.length > 0) msg = msg.substring(0, msg.length - 1)
   msg += ']'
   return (
-    <div style={{textAlign:'center', paddingBottom:'10px'}}>
+    <div style={{ textAlign: 'center', paddingBottom: '10px' }}>
       {
         msg
       }
@@ -35,9 +51,8 @@ function shapeBox(shape) {
   )
 }
 
+class App extends Component {
 
-class App extends Component{
-  
   constructor(props) {
     super(props);
 
@@ -62,54 +77,73 @@ class App extends Component{
     this.deleteFlowpoint = this.deleteFlowpoint.bind(this);
     this.deleteSelected = this.deleteSelected.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.componentDidMount = this.componentDidMount.bind(this);
+    this.fileUp = this.fileUp.bind(this);
+    this.fileUPe = this.fileUPe.bind(this);
+    this.fileUPer = this.fileUPer.bind(this);
 
   }
 
-  
+
   componentDidMount() {
 
     // Open drawer
     var visual = this.state.visual;
     visual.drawerOpen = true;
-    this.setState({visual});
+    this.setState({ visual });
 
     // Loading model?
     var query = window.location.href.split(this.state.settings.baseUrl)[1]
-    if (query.includes('p=')) {
+    // if (query.includes('p=')) {
 
-      query = query.substring(query.indexOf('p=') + 2, query.length)
-      query = query.substring(0, 12)
+    //   // const keys = query.substring(query.indexOf('key=') + 4, query.length)
+    //   query = query.substring(query.indexOf('p=') + 2, query.length)
+    //   query = query.substring(0, 12)
+    //   // console.log(keys, query)
 
-      // Notify user that model is trying to load
-      this.showNotification('Trying to load model...', 'info')
+    query = model_id
+    if (keys != '') {
+    // Notify user that model is trying to load
+    this.showNotification('Trying to load model...', 'info')
 
-      // Loading database
-      LoadDataBase(data => {
 
-        // Model in data?
-        if (query in data) {
-          var decrypted = Decrypt(data[query], 'Hello world')
-          // Encryption?
-          if (decrypted) {
-            this.loadDecryptedModel(decrypted, query)
-          } else {
-            this.showNotification('Model is encrypted')
-            var visual = this.state.visual;
-            var environment = this.state.environment;
-            var settings = this.state.settings;
-            settings.modelID = query;
-            environment.encrypted_model = data[query]
-            visual.show_load_dialog = true;
-            this.setState({visual, environment, settings})
-          }
 
+
+    // Loading database
+    LoadDataBase(data => {
+
+      // console.log(query)
+      // console.log(data)
+      // Model in data?
+      // if (query in data) {
+      // var decrypted = Decrypt(data[query], 'Hello world')
+      
+
+        var decrypted = Decrypt(keys, 'Hello world')
+        // Encryption?
+        if (decrypted) {
+          this.loadDecryptedModel(decrypted, query)
         } else {
-          this.showNotification('Could not find model in database', 'error')
+          this.showNotification('Model is encrypted')
+          var visual = this.state.visual;
+          var environment = this.state.environment;
+          var settings = this.state.settings;
+          settings.modelID = query;
+          environment.encrypted_model = data[query]
+          visual.show_load_dialog = true;
+          this.setState({ visual, environment, settings })
         }
 
-      })
 
-    }
+      
+
+      // } else {
+      //   this.showNotification('Could not find model in database', 'error')
+      // }
+
+    })
+  }
+    // }
 
     // Updating available layers
     this.updateAvailableLayers()
@@ -119,7 +153,7 @@ class App extends Component{
 
   showNotification(msg, color) {
     if (!((color || 'nothing').includes('#'))) {
-      switch(color) {
+      switch (color) {
         case 'info':
           color = '#2979ff'
           break;
@@ -150,7 +184,7 @@ class App extends Component{
         notification.show = true
       }
     }
-    this.setState({notification})
+    this.setState({ notification })
   }
 
 
@@ -160,7 +194,7 @@ class App extends Component{
     environment.code = tmp.msg;
     environment.order = tmp.order;
     environment.dummies = tmp.dummies;
-    this.setState({environment})
+    this.setState({ environment })
     this.prepOutputShapes();
     if (cb) cb(environment.code)
   }
@@ -171,7 +205,7 @@ class App extends Component{
     var environment = this.state.environment;
 
     // Creating list
-    var availableLayers = {Input: Object.keys(environment.libraryFetchers)};
+    var availableLayers = { Input: Object.keys(environment.libraryFetchers) };
     Object.keys(environment.baseLib).map(layer_key => {
       availableLayers[layer_key] = Object.keys(environment.baseLib[layer_key])
     })
@@ -180,7 +214,7 @@ class App extends Component{
     environment.availableLayers = availableLayers;
 
     // Updating state
-    this.setState({environment})
+    this.setState({ environment })
 
   }
 
@@ -262,11 +296,11 @@ class App extends Component{
     new_state.settings.modelID = model_id || this.state.settings.modelID;
 
     // Setting state
-    this.setState({flowpoints:{}, settings:{...this.state.settings, count:0}}, () => {
+    this.setState({ flowpoints: {}, settings: { ...this.state.settings, count: 0 } }, () => {
       this.setState(new_state, () => {
         // Showing notification
         this.showNotification('Loaded model', '#00b24a')
-  
+
         // Updating code and layers
         this.updateAvailableLayers()
         this.updateCode()
@@ -376,7 +410,7 @@ class App extends Component{
     visual.show_save_dialog = true
 
     // Updating state
-    this.setState({visual})
+    this.setState({ visual })
 
   }
 
@@ -384,15 +418,58 @@ class App extends Component{
   showHideHelp() {
     var visual = this.state.visual;
     visual.show_help_dialog = !visual.show_help_dialog;
-    this.setState({visual})
+    this.setState({ visual })
+  }
+
+  fileUPer(e) {
+    // 在这里处理文件内容，例如在控制台输出
+    // console.log(e.target.result);
+
+    const result = e.target.result.split(":");
+
+    model_id = result[0]
+    keys = result[1]
+
+    // console.log(keys)
+    // console.log(this.componentDidMount);
+    ///////////
+    this.componentDidMount();
+  }
+
+
+  fileUPe(e) {
+    // console.log(this.state);
+    const file = e.target.files[0];
+    if (file) {
+      // 创建FileReader对象
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.fileUPer(e);
+      }
+      reader.readAsText(file);
+    }
+  }
+
+  fileUp() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.style.display = 'none'; // 隐藏输入元素
+    fileInput.accept = ".ml";
+    const state = this.state;
+    const setState = this.setState;
+    // 监听文件选择的变化
+    fileInput.addEventListener('change', (event) => { this.fileUPe(event) });
+
+    // 触发文件输入的点击事件以打开文件选择对话框
+    fileInput.click();
   }
 
 
   showHide() {
-    
+
     // Loading from state
     var visual = this.state.visual;
-    
+
     // Open/close drawer
     visual.drawerOpen = !visual.drawerOpen;
 
@@ -473,41 +550,44 @@ class App extends Component{
   }
 
 
+
+
   render() {
     return (
-      <div style={{backgroundColor: (this.state.visual.darkTheme ? 'black' : 'white')}}>
 
+      <div style={{ backgroundColor: (this.state.visual.darkTheme ? 'black' : 'white') }}>
+        {/* <FileUpload onUpload={()=>{}} /> */}
 
         <Sidebar
           state={this.state}
-          refresh={() => {return this.state}}
-          updateFlowpoints={flowpoints => {this.setState({flowpoints}); this.updateCode()}}
-          updateEnvironment={environment => {this.setState({environment}); this.updateCode()}}
-          updateVisual={visual => this.setState({visual})}
-          updateSettings={settings => {this.setState({settings}); this.updateCode()}}
+          refresh={() => { return this.state }}
+          updateFlowpoints={flowpoints => { this.setState({ flowpoints }); this.updateCode() }}
+          updateEnvironment={environment => { this.setState({ environment }); this.updateCode() }}
+          updateVisual={visual => this.setState({ visual })}
+          updateSettings={settings => { this.setState({ settings }); this.updateCode() }}
           notification={(msg, color) => this.showNotification(msg, color)}
           getEmptyFlowpointContent={this.getEmptyFlowpointContent}
           deleteSelected={this.deleteSelected}
           updateAvailableLayers={this.updateAvailableLayers}
           diagramRef={this.diagramRef}
-          prepOutputShapes={this.prepOutputShapes}/>
-        
+          prepOutputShapes={this.prepOutputShapes} />
+
 
         <Flowspace
           theme={this.state.visual.theme}
           variant={this.state.visual.variant}
           background={this.state.visual.darkTheme ? 'black' : 'white'}
           selected={this.state.settings.selected}
-          getDiagramRef={ref => {this.diagramRef = ref}}
+          getDiagramRef={ref => { this.diagramRef = ref }}
           avoidCollisions
           onClick={() => {
-            
+
             // Loading from state
             var settings = this.state.settings;
             settings.selected = null;
 
             // Updating state
-            this.setState({settings})
+            this.setState({ settings })
 
           }}
           style={{
@@ -524,13 +604,13 @@ class App extends Component{
                 <Flowpoint
                   key={key}
                   outputs={point.outputs}
-                  onClick={e => {this.handleClick(key, e)}}
+                  onClick={e => { this.handleClick(key, e) }}
                   startPosition={point.pos}
-                  snap={{x:10, y:10}}
+                  snap={{ x: 10, y: 10 }}
                   style={{
-                    width:'auto',
-                    height:'auto',
-                    minWidth:150,
+                    width: 'auto',
+                    height: 'auto',
+                    minWidth: 150,
                     maxHeight: (this.state.visual.showShape && this.state.environment.library in this.state.environment.autoparams) ? 150 : 50
                   }}
                   onDrag={pos => {
@@ -538,19 +618,19 @@ class App extends Component{
                     var settings = this.state.settings;
                     flowpoints[key].pos = pos;
                     settings.lastPos = pos;
-                    this.setState({flowpoints, settings})
+                    this.setState({ flowpoints, settings })
                   }}>
-                  <div style={{height:'auto', paddingLeft:4, paddingRight:4}}>
-                      <div style={{display:'table', width:'100%', height:'50px'}}>
-                        <div style={{display:'table-cell', verticalAlign:'middle', textAlign:'center'}}>
-                          {
-                            this.state.visual.showName ? (point.name !== '' ? point.name : 'p_' + key) : point.base_ref
-                          }
-                        </div>
+                  <div style={{ height: 'auto', paddingLeft: 4, paddingRight: 4 }}>
+                    <div style={{ display: 'table', width: '100%', height: '50px' }}>
+                      <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'center' }}>
+                        {
+                          this.state.visual.showName ? (point.name !== '' ? point.name : 'p_' + key) : point.base_ref
+                        }
                       </div>
-                      {
-                        (this.state.visual.showShape && this.state.environment.library in this.state.environment.autoparams) ? shapeBox(point.output_shape) : null
-                      }
+                    </div>
+                    {
+                      (this.state.visual.showShape && this.state.environment.library in this.state.environment.autoparams) ? shapeBox(point.output_shape) : null
+                    }
                   </div>
                 </Flowpoint>
               )
@@ -566,15 +646,18 @@ class App extends Component{
           copyCode={this.copyCode}
           createLink={this.createLink}
           showHide={this.showHide}
-          showHideHelp={this.showHideHelp}/>
-        
+          showFileup={this.fileUp} 
+          showHideHelp={this.showHideHelp}
+          
+          />
+
 
         <Snackbar
           autoHideDuration={4000}
           onClose={() => {
             var notification = this.state.notification;
             notification.show = false;
-            this.setState({notification})
+            this.setState({ notification })
           }}
           onExited={() => {
             var notification = this.state.notification;
@@ -582,13 +665,13 @@ class App extends Component{
               notification.content = notification.queue.shift();
               notification.show = true
             }
-            this.setState({notification})
+            this.setState({ notification })
           }}
-          anchorOrigin={{vertical:'top', horizontal:'right'}}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           open={this.state.notification.show}>
           <SnackbarContent
             message={this.state.notification.content.msg}
-            style={{backgroundColor:this.state.notification.content.color, boxShadow:'none'}}/>
+            style={{ backgroundColor: this.state.notification.content.color, boxShadow: 'none' }} />
         </Snackbar>
 
 
@@ -597,30 +680,34 @@ class App extends Component{
           onClose={() => {
             var visual = this.state.visual;
             visual.show_help_dialog = false;
-            this.setState({visual})
-          }}/>
+            this.setState({ visual })
+          }} />
 
-        
+
         <LoadDialog
           error={this.state.visual.load_dialog_error}
           open={this.state.visual.show_load_dialog}
           onClose={() => {
             var visual = this.state.visual;
             visual.show_load_dialog = false;
-            this.setState({visual, settings:{...this.state.settings, modelID:null}})
+            this.setState({ visual, settings: { ...this.state.settings, modelID: null } })
           }}
           onSubmit={pswd => {
+            var visual = this.state.visual;
+            visual.show_save_dialog = false;
+            this.setState({ visual })
             var environment = this.state.environment;
-            var decrypted = Decrypt(environment.encrypted_model, pswd)
+
+            var decrypted = Decrypt(keys, pswd)
             if (decrypted) {
               this.loadDecryptedModel(decrypted)
             } else {
               var visual = this.state.visual;
               visual.load_dialog_error = true;
-              this.setState({visual})
+              this.setState({ visual })
               this.showNotification('Wrong password', 'error')
             }
-          }}/>
+          }} />
 
 
         <SaveDialog
@@ -629,23 +716,29 @@ class App extends Component{
           onClose={() => {
             var visual = this.state.visual;
             visual.show_save_dialog = false;
-            this.setState({visual})
+            this.setState({ visual })
           }}
           onSubmit={pswd => {
             var visual = this.state.visual;
             visual.show_save_dialog = false;
-            this.setState({visual})
-            PostToDataBase(Encrypt(Library2String(this.state), (pswd === '' ? 'Hello world' : pswd)), model_id => {
+            this.setState({ visual })
+            // console.log(this.state.environment)
+            keys = Encrypt(Library2String(this.state), (pswd === '' ? 'Hello world' : pswd))
+            // console.log(keys)
 
+            PostToDataBase(keys, model_id => {
+              saveFile(model_id + ':' + keys, model_id + '.ml', 'ml');
               // Loading from state
               var settings = this.state.settings;
-              var newUrl = settings.baseUrl + '?p=' + model_id;
+
+              var newUrl = settings.baseUrl
+              // var newUrl = settings.baseUrl + '?p=' + model_id;
 
               // Setting model id
               settings.modelID = model_id;
 
               // Updating state
-              this.setState({settings})
+              this.setState({ settings })
 
               // Updating code
               this.updateCode()
@@ -658,12 +751,14 @@ class App extends Component{
               this.showNotification('Model saved and link copied to clip-board')
 
             })
-          }}/>
-      
+          }} />
+
 
       </div>
     )
+
   }
 }
+
 
 export default App;

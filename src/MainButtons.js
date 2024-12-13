@@ -6,6 +6,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import LinkIcon from '@material-ui/icons/Link';
 import HelpIcon from '@material-ui/icons/Help';
+import AttachFileIcon from '@material-ui/icons/AttachFile'
 
 
 const ButtonContainer = props => {
@@ -64,7 +65,7 @@ export const MainButtons = props => {
         <div style={{paddingBottom:4}}>
           <ButtonContainer
             color='#3d5afe'
-            tooltip='Share link to current model'
+            tooltip='save model'
             onClick={props.createLink}>
             <LinkIcon/>
           </ButtonContainer>
@@ -73,7 +74,16 @@ export const MainButtons = props => {
         <div style={{paddingBottom:4}}>
           <ButtonContainer
             color='#651fff'
-            tooltip='Help'
+            tooltip='import'
+            onClick={props.showFileup}>
+            <AttachFileIcon/>
+          </ButtonContainer>
+        </div>
+
+        <div style={{paddingBottom:4}}>
+          <ButtonContainer
+            color='rgb(119 73 221)'
+            tooltip='help'
             onClick={props.showHideHelp}>
             <HelpIcon/>
           </ButtonContainer>
