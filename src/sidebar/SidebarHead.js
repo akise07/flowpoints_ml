@@ -34,7 +34,7 @@ export const SidebarHead = props => {
           </IconButton>
         </Tooltip>
         <Tooltip title='offline' placement="bottom" disableTriggerFocus disableFocusListener>
-          <IconButton target='_blank' href='https://github.com/mariusbrataas/flowpoints_ml#readme'>
+          <IconButton target='_blank' href='https://github.com/akise07/flowpoints_ml_offline'>
             <FaGithub color='#e0a25d'/>
           </IconButton>
         </Tooltip>
